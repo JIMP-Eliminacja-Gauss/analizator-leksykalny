@@ -15,39 +15,41 @@ lexem_t alex_nextLexem( void ) {
   int c;
   while( (c= fgetc(ci)) != EOF ) {
     if( isspace( c ) )
-                        continue;
-                else if( c == '\n' )
-                        ln++;
+        continue;
+    else if( c == '\n' )
+        ln++;
     else if( c == '(' )
-                        return OPEPAR;
+        return OPEPAR;
     else if( c == ')' )
-      return CLOPAR;
+        return CLOPAR;
     else if( c == '{' )
-                        return OPEBRA;
+        return OPEBRA;
     else if( c == '}' )
-                        return CLOBRA;
+        return CLOBRA;
     else if( isalpha( c ) ) {
-      int i= 1;
-      ident[0] = c;
-      while( isalnum( c= fgetc(ci) ) )
-                                ident[i++] = c;
-                        ident[i] = '\0';
-      return isKeyword(ident) ? OTHER : IDENT;
-                } else if( c == '"' ) {
+        int i= 1;
+        ident[0] = c;
+        while( isalnum( c= fgetc(ci) ) )
+            ident[i++] = c;
+        ident[i] = '\0';
+        return isKeyword(ident) ? OTHER : IDENT;
+    } else if( c == '"' ) {
       /* Uwaga: tu trzeba jeszcze poprawic obsluge nowej linii w trakcie napisu
          i \\ w napisie 
       */
-      int cp = c;
-                        while( (c= fgetc(ci)) != EOF && c != '"' && cp == '\\' ) {
-                                cp = c;
-      }
-      return c==EOF ? EOFILE : OTHER; 
+        int cp = c;
+        while( (c= fgetc(ci)) != EOF && c != '"' && cp == '\\' ) {
+            cp = c;
+        }
+
+        return c==EOF ? EOFILE : OTHER; 
+
     } else if( c == '/' ) {
       /* moze byc komentarz */
-                } if( isdigit( c ) || c == '.' ) {
+    } if( isdigit( c ) || c == '.' ) {
       /* liczba */
-                } else {
-      return OTHER;
+    } else {
+        return OTHER;
                 }
         }       
   return EOFILE;
