@@ -1,10 +1,28 @@
 #include "alex.h"
 
 #include <ctype.h>
+#include <string.h>
 
 static int  ln= 0;
 static char ident[256];
 static FILE *ci= NULL;
+
+int isKeyword(char *name) {
+    char *reserved_names[] = {
+        "auto", "break", "case", "char", "const",
+         "continue", "default", "do", "double", "else", "enum", "extern",
+         "float", "for", "goto", "if", "inline", "int", "long", "register",
+         "restrict", "return", "short", "signed", "sizeof", "static",
+         "struct", "switch", "typedef", "union", "unsigned", "void",
+         "volatile", "while"
+        };
+
+    for (int i = 0; i < (int) (sizeof reserved_names / sizeof reserved_names[0]); i++) {
+        if (strcmp(reserved_names[i], name) == 0)
+            return 1;
+    }
+    return 0;
+}
 
 void    alex_init4file( FILE *in ) {
    ln= 0;
