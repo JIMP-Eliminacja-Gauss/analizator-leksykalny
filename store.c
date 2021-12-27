@@ -73,24 +73,31 @@ store_t *store_find(char *funame, store_t *head) {
     return temp;
 }
 
-
-int store_add_proto(char *funame, int line_number, char *inpname, store_t *head) {
+int store_add(char *funame, int line_number, char *inpname, store_t *head, store_t *fstore) {
     // return -1 | za malo pamieci (malloc)
     // return -2 | za malo pamieci (realloc)
+    // fstore: head, head -> fun_def, head -> func_call
     if (head -> funame == NULL && head -> func_def -> funame == NULL && head -> func_call -> funame == NULL ) { 
-        head -> funame = malloc(sizeof *(head -> funame) * (strlen(funame) + 1));
-        head -> inpname_linenum -> inpname = malloc(sizeof *(head -> inpname_linenum -> inpname) * (strlen(inpname) + 1));
+        fstore -> funame  = malloc(sizeof *(fstore -> funame) * (strlen(funame) + 1));
+        fstore -> inpname_linenum -> inpname = malloc(sizeof *(fstore -> inpname_linenum -> inpname) * (strlen(inpname) + 1));
 
-        if (head -> funame == NULL || head -> inpname_linenum -> inpname == NULL)
+        if (fstore -> funame == NULL || fstore -> inpname_linenum -> inpname == NULL)
             return -1;
 
-        head -> inpname_linenum -> line_number[0] = line_number;
-        strcpy(head -> funame, funame);
-        strcpy(head -> inpname_linenum -> inpname, inpname); 
+        fstore -> inpname_linenum -> line_number[0] = line_number;
+        strcpy(fstore -> funame, funame);
+        strcpy(fstore -> inpname_linenum -> inpname, inpname); 
         return 0;
     }
 
-    store_t *new = store_find(funame, head);
+    store_t *new = NULL;
+    if (fstore == head)
+        new = store_find(funame, head);
+    else if (fstore == head -> func_def)
+        new = store_find(funame, head) -> func_def;
+    else if (fstore == head -> func_call)
+        new = store_find(funame, head) -> func_call;
+
     if (new -> funame == NULL) {
         new -> funame = malloc(sizeof *(new -> funame) * (strlen(funame) + 1));
 
@@ -133,53 +140,26 @@ int store_add_proto(char *funame, int line_number, char *inpname, store_t *head)
     
 }
 
-/*int store_add_def(char *funame, int line_number, char *inpname, store_t *fstore) {
-    // Przypisywanie pamieci i wartosci jezeli jeszcze ich nie ma
-    
-    if (fstore -> func_def -> funame == NULL) {
-        fstore -> func_def -> funame = malloc(sizeof *(fstore -> func_def -> funame) * (strlen(funame) + 1));
-        if (fstore -> func_def -> funame == NULL) {
-            // zabraklo pamieci
-            return -1;
-        } else 
-            strcpy(fstore -> func_def -> funame, funame);
-    }
 
-    // jezeli nie ma jeszcze plikow w tablicy
-    if (fstore -> func_def -> inpname_amount == 0) {
-        fstore -> func_def -> inpname = malloc(sizeof *(fstore -> func_def -> inpname));
-        if (fstore -> func_def -> inpname == NULL)
-            return -1; // zabraklo pamieci
-        else {
-            fstore -> func_def -> inpname[0] = malloc(sizeof **(fstore -> func_def -> inpname) * (strlen(inpname) + 1));
-            strcpy(fstore -> func_def -> inpname[0], inpname);
-            fstore -> func_def -> inpname_amount = 1;
-        } 
-    } else {
-        int bool_tmp = 0;
-        for (int i = 0; i < fstore -> func_def -> inpname_amount; i++) {
-            // jezeli nazwa pliku juz jest w tablicy
-            if (strcmp(fstore -> func_def -> inpname[i], inpname) == 0) {
-                bool_tmp = 1;
-            }
-        }
 
-        if (!bool_tmp) {
-            fstore -> func_def -> inpname_amount++;
-            fstore -> func_def -> inpname = realloc(fstore -> func_def -> inpname, sizeof *(fstore -> func_def -> inpname) * fstore -> func_def -> inpname_amount);
-            fstore -> func_def -> inpname[fstore -> func_def -> inpname_amount - 1] = malloc(sizeof **(fstore -> func_def -> inpname) * (strlen(inpname) + 1));
-            strcpy(fstore -> func_def -> inpname[fstore -> func_def -> inpname_amount - 1], inpname);
-        }
-    }
 
-    if (fstore -> func_def -> line_number[0] == -1)
-        fstore -> func_def -> line_number[0] = line_number;
-    else
-        fstore -> func_def -> line_number[1] = line_number; 
+int store_add_proto(char *funame, int line_number, char *inpname, store_t *head) {
+    if (store_add(funame, line_number, inpname, head, head) != 0) {
+        return -1;
+    } else
+        return 0;
+}
 
-    return 0;
-}*/
+int store_add_def(char *funame, int line_number, char *inpname, store_t *head) {
+    if (store_add(funame, line_number, inpname, head, head -> func_def) != 0) {
+        return -1;
+    } else
+        return 0;
+}
 
-void store_add_call(char *funame, int line_number, char *inpname, store_t *fstore) {
-    ;
+int store_add_call(char *funame, int line_number, char *inpname, store_t *head) {
+    if (store_add(funame, line_number, inpname, head, head -> func_call) != 0) {
+        return -1;
+    } else
+        return 0;
 } 
