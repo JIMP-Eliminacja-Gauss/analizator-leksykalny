@@ -17,12 +17,12 @@ typedef struct elem {
     struct elem *next;
 } store_t;
 
-void *store_init(store_t *fstore);
+void store_init(store_t *fstore);
 store_t *store_find(char *funame, store_t *head);
 int store_add(char *funame, int line_number, char *inpname, store_t *head, store_t *fstore);
-int store_add_proto(char *funame, int line_number, char *inpname, store_t *head);
-int store_add_def(char *funame, int line_number, char *inpname, store_t *head);
-int store_add_call(char *funame, int line_number, char *inpname, store_t *head);
+void store_add_proto(char *funame, int line_number, char *inpname, store_t *head);
+void store_add_def(char *funame, int line_number, char *inpname, store_t *head);
+void store_add_call(char *funame, int line_number, char *inpname, store_t *head);
 // store_add_call wywowalanie funkcji
 
 

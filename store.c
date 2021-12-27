@@ -1,17 +1,21 @@
 #include "store.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
-void *store_init(store_t *fstore) {
+void store_init(store_t *fstore) {
     // store_init edytuje parametry podanej jako argument struktury
     
-    if (fstore == NULL)
-        return NULL; 
+    if (fstore == NULL) {
+        printf("Za malo pamieci...\n");
+        exit(1);
+    }
 
     fstore -> func_def = malloc(sizeof *(fstore -> func_def));
     fstore -> func_call = malloc(sizeof *(fstore -> func_call));
     if (fstore -> func_call == NULL || fstore -> func_def == NULL) {
-        return NULL;
+        printf("Za malo pamieci...\n");
+        exit(1);
     }
 
     fstore -> funame = NULL;
@@ -23,8 +27,10 @@ void *store_init(store_t *fstore) {
     fstore -> func_call -> inpname_linenum = malloc(sizeof *(fstore -> func_call -> inpname_linenum));
 
     if (fstore -> inpname_linenum == NULL || fstore -> func_def -> inpname_linenum == NULL ||
-        fstore -> func_call -> inpname_linenum == NULL) 
-        return NULL;
+        fstore -> func_call -> inpname_linenum == NULL) {
+        printf("Za malo pamieci...\n");
+        exit(1);
+    }
 
     fstore -> inpname_linenum -> next = NULL;
     fstore -> inpname_linenum -> inpname = NULL;
@@ -41,9 +47,7 @@ void *store_init(store_t *fstore) {
         fstore -> func_call -> inpname_linenum -> line_number[i] = -1;
     }
 
-    fstore -> next = NULL;
-
-    return (void *) 1;
+    fstore -> next = NULL; 
 }
 
 store_t *store_find(char *funame, store_t *head) {
@@ -68,6 +72,10 @@ store_t *store_find(char *funame, store_t *head) {
 
     // temp = NULL
     temp = malloc(sizeof *temp);
+    if (temp == NULL) {
+        printf("Niestety niewystarczajaco duzo pamieci...\n");
+        exit(1);
+    }
     temp2 -> next = temp;
     store_init(temp);
     return temp;
@@ -112,6 +120,10 @@ int store_add(char *funame, int line_number, char *inpname, store_t *head, store
     while (temp != NULL) {
         if (temp -> inpname == NULL) {
             temp -> inpname = malloc(sizeof *(temp -> inpname) * (strlen(inpname) + 1));
+
+            if (temp -> inpname == NULL)
+                return -1;
+
             strcpy(temp -> inpname, inpname);
             temp -> line_number[0] = line_number;
             temp -> line_number[1] = -1;
@@ -129,8 +141,16 @@ int store_add(char *funame, int line_number, char *inpname, store_t *head, store
 
     //  temp jest NULLEM
     temp = malloc(sizeof *(temp));
+
+    if (temp == NULL)
+        return -1;
+
     temp2 -> next = temp;
     temp -> inpname = malloc(sizeof *(temp -> inpname) * (strlen(inpname) + 1));
+
+    if (temp -> inpname == NULL)
+        return -1;
+
     temp -> line_number[0] = line_number;
     temp -> line_number[1] = -1;
     temp -> next = NULL;
@@ -143,23 +163,27 @@ int store_add(char *funame, int line_number, char *inpname, store_t *head, store
 
 
 
-int store_add_proto(char *funame, int line_number, char *inpname, store_t *head) {
+void store_add_proto(char *funame, int line_number, char *inpname, store_t *head) {
     if (store_add(funame, line_number, inpname, head, head) != 0) {
-        return -1;
-    } else
-        return 0;
+        printf("Blad krytyczny, za malo pamieci...\n");
+        exit(1);
+    }
+
 }
 
-int store_add_def(char *funame, int line_number, char *inpname, store_t *head) {
+void store_add_def(char *funame, int line_number, char *inpname, store_t *head) {
     if (store_add(funame, line_number, inpname, head, head -> func_def) != 0) {
-        return -1;
-    } else
-        return 0;
+        printf("Blad krytyczny, za malo pamieci...\n");
+        exit(1);
+    }
+    
 }
 
-int store_add_call(char *funame, int line_number, char *inpname, store_t *head) {
-    if (store_add(funame, line_number, inpname, head, head -> func_call) != 0) {
-        return -1;
-    } else
-        return 0;
+void store_add_call(char *funame, int line_number, char *inpname, store_t *head) {
+    int c;
+    if ((c = store_add(funame, line_number, inpname, head, head -> func_call)) != 0) {
+        printf("%d Blad krytyczny, za malo pamieci...\n", c);
+        exit(1);
+    }
+    
 } 
