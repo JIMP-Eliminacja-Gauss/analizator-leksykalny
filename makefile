@@ -1,6 +1,6 @@
 CFLAGS=-pedantic -Wall -Wextra -ggdb
 
-parser: parser.o store.o fun_stack.o alex.o
+parser: store.o test.o
 	$(CC) $(CFLAGS) $^ -o $@ 
 
 parser.o: parser.c 
@@ -14,6 +14,10 @@ fun_stack.o: fun_stack.c
 
 alex.o: alex.c 
 	$(CC) $(CFLAGS) -c $^ -o $@
+
+test.o: test.c
+	$(CC) $(CFLAGS) -c $^ -o $@
+
 
 
 .PHONY: clean
