@@ -5,34 +5,38 @@
 
 void store_cout(store_t *head) {
     store_t *tmp = head;
+    file_num_t *tmp2 = NULL;
     while (tmp != NULL) {
         printf( "Funkcja: %s\n", tmp -> funame);
         printf("-- Prototyp funkcji --\n");
-        while (tmp -> inpname_linenum != NULL) {
+        tmp2 = tmp -> inpname_linenum;
+        while (tmp2 != NULL) {
             printf("\tW pliku: %s\n"
                    "\tOd linijki %d do linijki %d\n\n", 
-                   tmp -> inpname_linenum -> inpname, tmp -> inpname_linenum -> line_number[0],
-                   (tmp -> inpname_linenum -> line_number[1] != -1 ? 
-                   tmp -> inpname_linenum -> line_number[1] : tmp -> inpname_linenum -> line_number[0]));
-            tmp -> inpname_linenum = tmp -> inpname_linenum -> next;
+                   tmp2 -> inpname, tmp2 -> line_number[0],
+                   (tmp2 -> line_number[1] != -1 ? 
+                   tmp2 -> line_number[1] : tmp2 -> line_number[0]));
+            tmp2 = tmp2 -> next;
         }
         printf("-- Definicja funkcji --\n");
-        while (tmp -> func_def -> inpname_linenum != NULL) {
+        tmp2 = tmp -> func_def -> inpname_linenum;
+        while (tmp2 != NULL) {
             printf("\tW pliku: %s\n"
                    "\tOd linijki %d do linijki %d\n\n", 
-                   tmp -> func_def -> inpname_linenum -> inpname, tmp -> func_def -> inpname_linenum -> line_number[0],
-                   (tmp -> func_def -> inpname_linenum -> line_number[1] != -1 ? 
-                   tmp -> func_def -> inpname_linenum -> line_number[1] : tmp -> func_def -> inpname_linenum -> line_number[0]));
-            tmp -> func_def -> inpname_linenum = tmp -> func_def -> inpname_linenum -> next;
+                   tmp2 -> inpname, tmp2 -> line_number[0],
+                   (tmp2 -> line_number[1] != -1 ? 
+                   tmp2 -> line_number[1] : tmp2 -> line_number[0]));
+            tmp2 = tmp2 -> next;
         }
+        tmp2 = tmp -> func_call -> inpname_linenum;
         printf("-- Wywolania funkcji --\n");
-        while (tmp -> func_call -> inpname_linenum != NULL) {
+        while (tmp2 != NULL) {
             printf("\tW pliku: %s\n"
                    "\tOd linijki %d do linijki %d\n\n", 
-                   tmp -> func_call -> inpname_linenum -> inpname, tmp -> func_call -> inpname_linenum -> line_number[0],
-                   (tmp -> func_call -> inpname_linenum -> line_number[1] != -1 ? 
-                   tmp -> func_call -> inpname_linenum -> line_number[1] : tmp -> func_call -> inpname_linenum -> line_number[0]));
-            tmp -> func_call -> inpname_linenum = tmp -> func_call -> inpname_linenum -> next;
+                   tmp2 -> inpname, tmp2 -> line_number[0],
+                   (tmp2 -> line_number[1] != -1 ? 
+                   tmp2 -> line_number[1] : tmp2 -> line_number[0]));
+            tmp2 = tmp2 -> next;
         }
         tmp = tmp -> next;
     }
