@@ -7,7 +7,11 @@
 void store_cout(store_t *head) {
     store_t *tmp = head;
     while (tmp != NULL) {
-        printf( "Funkcja: %s\n", tmp -> funame);
+        char *fname = tmp -> funame;
+        if (fname == NULL)
+            fname = tmp -> func_def -> funame == NULL ? tmp -> func_call -> funame : tmp -> func_def -> funame;
+
+        printf( "Funkcja: %s\n", fname);
         printf("-- Prototyp funkcji --\n");
         while (tmp -> inpname_linenum != NULL) {
             printf("\tW pliku: %s\n"
