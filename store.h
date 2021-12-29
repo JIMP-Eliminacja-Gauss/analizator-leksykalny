@@ -23,6 +23,7 @@ int store_add(char *funame, int line_number, char *inpname, store_t *head, store
 void store_add_proto(char *funame, int line_number, char *inpname, store_t *head);
 void store_add_def(char *funame, int line_number, char *inpname, store_t *head);
 void store_add_call(char *funame, int line_number, char *inpname, store_t *head);
+void store_free(store_t *head);
 // store_add_call wywowalanie funkcji
 
 
