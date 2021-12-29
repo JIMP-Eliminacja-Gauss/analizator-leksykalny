@@ -156,8 +156,7 @@ int store_add(char *funame, int line_number, char *inpname, store_t *head, store
     temp -> next = NULL;
     strcpy(temp -> inpname, inpname); 
     
-    return 0;
-    
+    return 0; 
 }
 
 
@@ -167,16 +166,14 @@ void store_add_proto(char *funame, int line_number, char *inpname, store_t *head
     if (store_add(funame, line_number, inpname, head, head) != 0) {
         printf("Blad krytyczny, za malo pamieci...\n");
         exit(1);
-    }
-
+    } 
 }
 
 void store_add_def(char *funame, int line_number, char *inpname, store_t *head) {
     if (store_add(funame, line_number, inpname, head, head -> func_def) != 0) {
         printf("Blad krytyczny, za malo pamieci...\n");
         exit(1);
-    }
-    
+    } 
 }
 
 void store_add_call(char *funame, int line_number, char *inpname, store_t *head) {
@@ -184,6 +181,44 @@ void store_add_call(char *funame, int line_number, char *inpname, store_t *head)
     if ((c = store_add(funame, line_number, inpname, head, head -> func_call)) != 0) {
         printf("%d Blad krytyczny, za malo pamieci...\n", c);
         exit(1);
-    }
-    
+    } 
 } 
+
+void store_free(store_t *head) {
+    store_t *temp = head;
+    file_num_t *temp2 = NULL;
+    while (head != NULL) {
+        temp = head;
+        head = head -> next;
+        free(temp -> funame);
+        free(temp -> func_def -> funame);
+        free(temp -> func_call -> funame);
+
+        while (temp -> inpname_linenum != NULL) {
+            free(temp -> inpname_linenum -> inpname);
+            temp2 = temp -> inpname_linenum;
+            temp -> inpname_linenum = temp -> inpname_linenum -> next;
+            free(temp2);
+        }
+
+        while (temp -> func_def -> inpname_linenum != NULL) {
+            free(temp -> func_def -> inpname_linenum -> inpname);
+            temp2 = temp -> func_def -> inpname_linenum;
+            temp -> func_def -> inpname_linenum = temp -> func_def -> inpname_linenum -> next;
+            free(temp2);
+        }
+
+        while (temp -> func_call -> inpname_linenum != NULL) {
+            free(temp -> func_call -> inpname_linenum -> inpname);
+            temp2 = temp -> func_call -> inpname_linenum;
+            temp -> func_call -> inpname_linenum = temp -> func_call -> inpname_linenum -> next;
+            free(temp2);
+        }
+
+        free(temp -> func_def);
+        free(temp -> func_call); 
+        free(temp); 
+    }
+}
+
+
