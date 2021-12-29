@@ -32,7 +32,7 @@ void    alex_init4file( FILE *in ) {
 lexem_t alex_nextLexem( void ) {
   int c;
   while( (c= fgetc(ci)) != EOF ) {
-    if( isspace( c ) )
+    if( isspace( c ) && c != '\n' )
         continue;
     else if( c == '\n' )
         ln++;
@@ -82,6 +82,7 @@ char *  alex_ident( void ) {
 }
 
 int     alex_getLN() {
+  printf("%d\n", ln);
         return ln;
 }
 
