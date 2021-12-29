@@ -3,7 +3,7 @@
 #include <string.h>
 #include "alex.h"       // analizator leksykalny
 #include "fun_stack.h"  // stos funkcji
-
+#include "store.h"
 #define MAXINDENTLENGHT 256     // maks długość identyfikatora
 
 static funstack_t stack = NULL;
@@ -14,18 +14,18 @@ int top_of_funstack( void ) {
         s = s->next;
     return s->level;
 }
-void put_on_fun_stack( int par_level, char *funame ) {
+int put_on_fun_stack( int par_level, char *funame ) {
     if( stack == NULL ) {
         stack = malloc( sizeof( struct funstack ) );
         if( stack == NULL ) {
             printf( "Za malo pamieci...\n" );
-            exit(1);
+            return -2;
         }
         stack->level = par_level;
         stack->fun_name = malloc( ( strlen( funame ) + 1 ) * sizeof( char ) );
         if( stack->fun_name == NULL ) {
             printf( "Za malo pamieci...\n" );
-            exit(1);
+            return -2;
         }
         strcpy( stack->fun_name, funame );
         stack->next = NULL;
@@ -36,18 +36,19 @@ void put_on_fun_stack( int par_level, char *funame ) {
         s->next = malloc( sizeof( struct funstack ) );
         if( s->next == NULL ) {
             printf( "Za malo pamieci...\n" );
-            exit(1);
+            return -2;
         }
         s = s->next;
         s->level = par_level;
         s->fun_name = malloc( ( strlen( funame ) + 1 ) * sizeof( char ) );
         if( s->fun_name == NULL ) {
             printf( "Za malo pamieci...\n" );
-            exit(1);
+            return -2;
         }
         strcpy( s->fun_name, funame );
         s->next = NULL;
     }
+    return 0;
 }
 char *get_from_fun_stack( void ) {
     funstack_t s = stack;
@@ -78,7 +79,7 @@ void free_stack( void ) {
 }
 
 void
-analizatorSkladni (char *inpname)
+analizatorSkladni (char *inpname, store_t *head )
 {                               // przetwarza plik inpname
   
   FILE *in = fopen (inpname, "r");
@@ -98,7 +99,7 @@ analizatorSkladni (char *inpname)
         lexem_t nlex = alex_nextLexem ();
         if (nlex == OPEPAR) {   // nawias otwierający - to zapewne funkcja
           npar++;
-          if( put_on_fun_stack (npar, iname) == 1 )
+          if( put_on_fun_stack (npar, iname) == -2 )
               exit(1);       // odłóż na stos funkcji
                                                 // stos f. jest niezbędny, aby poprawnie obsłużyć sytuacje typu
                                                 // f1( 5, f2( a ), f3( b ) )
@@ -119,7 +120,7 @@ analizatorSkladni (char *inpname)
           lexem_t nlex = alex_nextLexem ();     // bierzemy nast leksem
           funstack_t s;
           if (nlex == OPEBRA){   // nast. leksem to klamra a więc mamy do czynienia z def. funkcji
-            store_add_def (get_from_fun_stack(), alex_getLN (), inpname);
+            store_add_def (get_from_fun_stack(), alex_getLN (), inpname, head);
             s = stack;
             while( s->next != NULL )
                 s = s->next;
@@ -127,7 +128,7 @@ analizatorSkladni (char *inpname)
             free( s );
           }
           else if (nbra == 0) {   // nast. leksem to nie { i jesteśmy poza blokami - to musi być prototyp
-            store_add_proto (get_from_fun_stack(), alex_getLN (), inpname);
+            store_add_proto (get_from_fun_stack(), alex_getLN (), inpname, head);
             s = stack;
             while( s->next != NULL )
                 s = s->next;
@@ -135,7 +136,7 @@ analizatorSkladni (char *inpname)
             free( s );
           }
           else {                  // nast. leksem to nie { i jesteśmy wewnątrz bloku - to zapewne wywołanie
-            store_add_call (get_from_fun_stack(), alex_getLN (), inpname);
+            store_add_call (get_from_fun_stack(), alex_getLN (), inpname, head);
             s = stack;
             while( s->next != NULL )
                 s = s->next;
@@ -155,7 +156,7 @@ analizatorSkladni (char *inpname)
     case ERROR:{
         fprintf (stderr, "\nBUUUUUUUUUUUUUUUUUUUUUU!\n"
                  "W pliku %s (linia %d) są błędy składni.\n"
-                 "Kończę!\n\n", inpname, alex_getNL ());
+                 "Kończę!\n\n", inpname, alex_getLN ());
         exit (1);               // to nie jest najlepsze, ale jest proste ;-)
       }
       break;
@@ -164,5 +165,5 @@ analizatorSkladni (char *inpname)
     }
     lex = alex_nextLexem ();
   }
-  free_stack();
+  /*free_stack();*/
 }
