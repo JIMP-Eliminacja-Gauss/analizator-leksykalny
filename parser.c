@@ -94,6 +94,46 @@ analizatorSkladni (char *inpname, store_t *head )
   lex = alex_nextLexem ();      // pobierz następny leksem
   while (lex != EOFILE) {
     switch (lex) {
+    case IDENT3:{
+        if( top_of_funstack() == npar ) {
+            lexem_t nlex = alex_nextLexem();
+            funstack_t s;
+            if( nlex == OPEBRA ) {
+                store_add_def( get_from_fun_stack(), alex_getLN(), inpname, head );
+                s = stack;
+                while( s->next != NULL )
+                    s  = s->next;
+                free( s->fun_name );
+                free( s );
+            }
+            else if( nbra == 0 ) {
+                store_add_proto( get_from_fun_stack(), alex_getLN(), inpname, head );
+                s = stack;
+                while( s->next != NULL )
+                    s = s->next;
+                free( s->fun_name );
+                free( s );
+            }
+            else {
+                store_add_call( get_from_fun_stack(), alex_getLN(), inpname, head);
+                s  = stack;
+                while( s->next != NULL )
+                    s = s->next;
+                free( s->fun_name );
+                free( s );
+            }
+        }
+        npar--;
+      }
+      break;
+    case IDENT2:{
+        char *iname = alex_ident ();
+        npar++;
+        if( put_on_fun_stack (npar, iname) == -2 )
+            exit(1);
+    }
+      break;
+
     case IDENT:{
         char *iname = alex_ident ();   // zapamiętaj identyfikator i patrz co dalej
         lexem_t nlex = alex_nextLexem ();

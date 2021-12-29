@@ -50,6 +50,10 @@ lexem_t alex_nextLexem( void ) {
         while( isalnum( c= fgetc(ci) ) )
             ident[i++] = c;
         ident[i] = '\0';
+        if( c == '(' )
+            return isKeyword(ident) ? OTHER : IDENT2;
+        if( c == ')' )
+            return isKeyword(ident) ? OTHER : IDENT3;
         return isKeyword(ident) ? OTHER : IDENT;
     } else if( c == '"' ) {
       /* Uwaga: tu trzeba jeszcze poprawic obsluge nowej linii w trakcie napisu
