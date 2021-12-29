@@ -69,6 +69,7 @@ int main(int argc, char **argv) {
     */
 
     store_cout(head);
+    store_free(head);
 
     
 
