@@ -57,9 +57,6 @@ char *get_from_fun_stack( void ) {
     char *fname = strdup( s->fun_name );
     free( s->fun_name );
     free( s );
-    if( s == stack )
-        stack = NULL;
-    s = NULL;
     return fname;
 }
 
@@ -188,5 +185,5 @@ analizatorSkladni (char *inpname, store_t *head )
     }
     lex = alex_nextLexem ();
   }
-  /*free_stack();*/
+  free_stack();
 }
