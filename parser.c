@@ -188,5 +188,5 @@ analizatorSkladni (char *inpname, store_t *head )
     }
     lex = alex_nextLexem ();
   }
-  /*free_stack();*/
+  free_stack();
 }
