@@ -41,7 +41,6 @@ void store_cout(store_t *head) {
         }
         tmp = tmp -> next;
     }
-    store_free( head );
 }
 
 
@@ -54,5 +53,6 @@ int main(int argc, char **argv) {
     }
     analizatorSkladni( argv[1], head );
     store_cout( head );
+    store_free(head);
     return 0;
 }

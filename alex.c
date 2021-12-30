@@ -82,7 +82,6 @@ char *  alex_ident( void ) {
 }
 
 int     alex_getLN() {
-  printf("%d\n", ln);
         return ln;
 }
 
