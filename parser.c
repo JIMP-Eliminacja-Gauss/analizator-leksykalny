@@ -98,25 +98,25 @@ analizatorSkladni (char *inpname, store_t *head )
   alex_init4file (in);          // ustaw analizator leksykalny, aby czytał in
 
   lexem_t lex;
+  char *fname = NULL;
 
   lex = alex_nextLexem ();      // pobierz następny leksem
   while (lex != EOFILE) {
+      printf("%d\n", nbra);
     switch (lex) {
     case IDENT3:{
         if( top_of_funstack() == npar ) {
             lexem_t nlex = alex_nextLexem();
-            char *fname = get_from_fun_stack();
+            fname = get_from_fun_stack();
             if( nlex == OPEBRA ) {
+                nbra++;
                 store_add_def( fname, alex_getLN(), inpname, head );
-                free(fname);
             }
             else if( nbra == 0 ) {
                 store_add_proto( fname, alex_getLN(), inpname, head );
-                free(fname);
             }
             else {
                 store_add_call( fname, alex_getLN(), inpname, head);
-                free(fname);
             }
         }
         npar--;
@@ -154,18 +154,16 @@ analizatorSkladni (char *inpname, store_t *head )
                                                 // jeśli tak, to właśnie wczytany nawias jest domknięciem nawiasu otwartego
                                                 // za identyfikatorem znajdującym się na wierzchołku stosu
           lexem_t nlex = alex_nextLexem ();     // bierzemy nast leksem
-          char *fname = get_from_fun_stack();
+          fname = get_from_fun_stack();
           if (nlex == OPEBRA){   // nast. leksem to klamra a więc mamy do czynienia z def. funkcji
+            nbra++;
             store_add_def (fname, alex_getLN (), inpname, head);
-            free(fname);
           }
           else if (nbra == 0) {   // nast. leksem to nie { i jesteśmy poza blokami - to musi być prototyp
             store_add_proto (fname, alex_getLN (), inpname, head);
-            free(fname);
           }
           else {                  // nast. leksem to nie { i jesteśmy wewnątrz bloku - to zapewne wywołanie
             store_add_call (fname, alex_getLN (), inpname, head);
-            free(fname);
           }
         }
         npar--;
@@ -174,8 +172,11 @@ analizatorSkladni (char *inpname, store_t *head )
     case OPEBRA:
       nbra++;
       break;
-    case CLOBRA:
+    case CLOBRA: {
+        if (nbra == 1)
+        store_add_def(fname, alex_getLN(), inpname, head);
       nbra--;
+     }
       break;
     case ERROR:{
         fprintf (stderr, "\nBUUUUUUUUUUUUUUUUUUUUUU!\n"
@@ -189,6 +190,7 @@ analizatorSkladni (char *inpname, store_t *head )
     }
     lex = alex_nextLexem ();
   }
+      free(fname);
   fclose(in);
   /*free_stack();*/
 }
