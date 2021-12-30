@@ -128,6 +128,9 @@ int store_add(char *funame, int line_number, char *inpname, store_t *head, store
             temp -> line_number[0] = line_number;
             temp -> line_number[1] = -1;
             return 0;
+        } else if (fstore == head -> func_def && strcmp(temp -> inpname, inpname) == 0){ // jezeli jest definicja
+            temp -> line_number[1] = line_number;
+            return 0;
         } else if (strcmp(temp -> inpname, inpname) == 0 && (temp -> line_number[0] == line_number - 1 || temp -> line_number[1] == line_number - 1)) {
             temp -> line_number[1] = line_number;
             return 0;
