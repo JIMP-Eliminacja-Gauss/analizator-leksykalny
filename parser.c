@@ -59,7 +59,8 @@ char *get_from_fun_stack( void ) {
     free( s );
     if( s == stack )
         stack = NULL;
-    s = NULL;
+    else
+        s = NULL;
     return fname;
 }
 
@@ -88,7 +89,7 @@ void free_stack( void ) {
 void
 analizatorSkladni (char *inpname, store_t *head )
 {                               // przetwarza plik inpname
-  
+  stack = NULL;
   FILE *in = fopen (inpname, "r");
 
   int nbra = 0;   // bilans nawiasów klamrowych {}
@@ -188,5 +189,6 @@ analizatorSkladni (char *inpname, store_t *head )
     }
     lex = alex_nextLexem ();
   }
-  free_stack();
+  fclose(in);
+  /*free_stack();*/
 }
