@@ -9,87 +9,72 @@
 static funstack_t stack = NULL;
 
 int top_of_funstack( void ) {
-    funstack_t s = stack;
-    while( s->next != NULL )
-        s = s->next;
-    return s->level;
+    return stack->level;
 }
+
 int put_on_fun_stack( int par_level, char *funame ) {
     if( stack == NULL ) {
         stack = malloc( sizeof( struct funstack ) );
-        if( stack == NULL ) {
-            printf( "Za malo pamieci...\n" );
+        if( stack == NULL )
             return -2;
-        }
         stack->level = par_level;
         stack->fun_name = malloc( ( strlen( funame ) + 1 ) * sizeof( char ) );
-        if( stack->fun_name == NULL ) {
-            printf( "Za malo pamieci...\n" );
+        if( stack->fun_name == NULL )
             return -2;
-        }
         strcpy( stack->fun_name, funame );
         stack->next = NULL;
     } else {
-        funstack_t s = stack;
-        while( s->next != NULL )
-            s = s->next;
-        s->next = malloc( sizeof( struct funstack ) );
-        if( s->next == NULL ) {
-            printf( "Za malo pamieci...\n" );
+        funstack_t new = malloc( sizeof( struct funstack ) );
+        if( new == NULL )
             return -2;
-        }
-        s = s->next;
-        s->level = par_level;
-        s->fun_name = malloc( ( strlen( funame ) + 1 ) * sizeof( char ) );
-        if( s->fun_name == NULL ) {
-            printf( "Za malo pamieci...\n" );
+        new->level = par_level;
+        new->fun_name = malloc( ( strlen( funame ) + 1 ) * sizeof( char ) );
+        if( new->fun_name == NULL )
             return -2;
-        }
-        strcpy( s->fun_name, funame );
-        s->next = NULL;
+        strcpy( new->fun_name, funame );
+        new->next = stack;
+        stack = new;
     }
     return 0;
 }
+
 char *get_from_fun_stack( void ) {
-    funstack_t s = stack;
-    while( s->next != NULL )
-        s = s->next;
-    char *fname = strdup( s->fun_name );
-    free( s->fun_name );
-    free( s );
-    if( s == stack )
+    char *fname = strdup( stack->fun_name );
+    if( stack->next != NULL ) {
+        funstack_t tmp = stack->next;
+        free( stack->fun_name );
+        free( stack );
+        stack = tmp;
+    } else {
+        free( stack->fun_name );
+        free( stack );
         stack = NULL;
-    else
-        s = NULL;
+    }
     return fname;
 }
 
 void free_stack( void ) {
-    if( stack == NULL )
-        exit(1);
-    funstack_t s = stack;
-    if( s->next != NULL ) {
-        funstack_t s2 = stack;
-        while( s2->next != NULL ) {
-            s2 = s2->next; 
-            free( s->fun_name );
-            free( s );
-            s = s2;
+    if( stack != NULL ) {
+        if( stack->next != NULL ) {
+            while( stack->next != NULL ) {
+                funstack_t tmp =  stack->next;
+                free( stack->fun_name );
+                free( stack );
+                stack = tmp;
+            }
+            free( stack->fun_name );
+            free( stack );
+        } else {
+            free( stack->fun_name );
+            free( stack );
         }
-        // s2->next = NULL 
-        free( s->fun_name );
-        free( s );
-        
-    } else {
-        free( s->fun_name );
-        free( s );
     }
 }
+
 
 void
 analizatorSkladni (char *inpname, store_t *head )
 {                               // przetwarza plik inpname
-  int h = 0;
   stack = NULL;
   FILE *in = fopen (inpname, "r");
 
@@ -103,48 +88,13 @@ analizatorSkladni (char *inpname, store_t *head )
   lex = alex_nextLexem ();      // pobierz następny leksem
   while (lex != EOFILE) {
     switch (lex) {
-    case IDENT3:{
-        if( h != 0 ) {
-            if( top_of_funstack() == npar ) {
-                h--;
-                lexem_t nlex = alex_nextLexem();
-                char *fname = get_from_fun_stack();
-                if( nlex == OPEBRA ) {
-                    store_add_def( fname, alex_getLN(), inpname, head );
-                    free(fname);
-                }
-                else if( nbra == 0 ) {
-                    store_add_proto( fname, alex_getLN(), inpname, head );
-                    free(fname);
-                }
-                else {
-                    store_add_call( fname, alex_getLN(), inpname, head);
-                    free(fname);
-                }
-            }
-        }
-        npar--;
-      }
-      break;
-    case IDENT2:{
-        char *iname = alex_ident ();
-        npar++;
-        if( put_on_fun_stack (npar, iname) == -2 )
-            exit(1);
-        h++;
-    }
-      break;
-
     case IDENT:{
         char *iname = alex_ident ();   // zapamiętaj identyfikator i patrz co dalej
         lexem_t nlex = alex_nextLexem ();
         if (nlex == OPEPAR) {   // nawias otwierający - to zapewne funkcja
           npar++;
-          if( npar == 1 ) {
-            if( put_on_fun_stack (npar, iname) == -2 ) {
-                exit(1);       // odłóż na stos funkcji
-            }
-            h++;
+          if( put_on_fun_stack (npar, iname) == -2 ) {
+            exit(1);       // odłóż na stos funkcji
           }
           
                                                 // stos f. jest niezbędny, aby poprawnie obsłużyć sytuacje typu
@@ -160,9 +110,9 @@ analizatorSkladni (char *inpname, store_t *head )
       npar++;
       break;
     case CLOPAR:{              // zamykający nawias - to może być koniec prototypu, nagłówka albo wywołania
-        if( h != 0 ) {
+        
             if (top_of_funstack () == npar) {       // sprawdzamy, czy liczba nawiasów bilansuje się z wierzchołkiem stosu funkcji
-            h--;
+            
                                                 // jeśli tak, to właśnie wczytany nawias jest domknięciem nawiasu otwartego
                                                 // za identyfikatorem znajdującym się na wierzchołku stosu
                 lexem_t nlex = alex_nextLexem ();     // bierzemy nast leksem
@@ -180,7 +130,7 @@ analizatorSkladni (char *inpname, store_t *head )
                     free(fname);
                 }
             }
-        }
+        
         npar--;
       }
       break;
