@@ -76,7 +76,7 @@ void free_stack( void ) {
             free( s );
             s = s2;
         }
-        /* s2->next = NULL */
+        // s2->next = NULL 
         free( s->fun_name );
         free( s );
         
@@ -89,6 +89,7 @@ void free_stack( void ) {
 void
 analizatorSkladni (char *inpname, store_t *head )
 {                               // przetwarza plik inpname
+  int h = 0;
   stack = NULL;
   FILE *in = fopen (inpname, "r");
 
@@ -98,25 +99,28 @@ analizatorSkladni (char *inpname, store_t *head )
   alex_init4file (in);          // ustaw analizator leksykalny, aby czytał in
 
   lexem_t lex;
-  char *fname = NULL;
 
   lex = alex_nextLexem ();      // pobierz następny leksem
   while (lex != EOFILE) {
-      printf("%d\n", nbra);
     switch (lex) {
     case IDENT3:{
-        if( top_of_funstack() == npar ) {
-            lexem_t nlex = alex_nextLexem();
-            fname = get_from_fun_stack();
-            if( nlex == OPEBRA ) {
-                nbra++;
-                store_add_def( fname, alex_getLN(), inpname, head );
-            }
-            else if( nbra == 0 ) {
-                store_add_proto( fname, alex_getLN(), inpname, head );
-            }
-            else {
-                store_add_call( fname, alex_getLN(), inpname, head);
+        if( h != 0 ) {
+            if( top_of_funstack() == npar ) {
+                h--;
+                lexem_t nlex = alex_nextLexem();
+                char *fname = get_from_fun_stack();
+                if( nlex == OPEBRA ) {
+                    store_add_def( fname, alex_getLN(), inpname, head );
+                    free(fname);
+                }
+                else if( nbra == 0 ) {
+                    store_add_proto( fname, alex_getLN(), inpname, head );
+                    free(fname);
+                }
+                else {
+                    store_add_call( fname, alex_getLN(), inpname, head);
+                    free(fname);
+                }
             }
         }
         npar--;
@@ -127,6 +131,7 @@ analizatorSkladni (char *inpname, store_t *head )
         npar++;
         if( put_on_fun_stack (npar, iname) == -2 )
             exit(1);
+        h++;
     }
       break;
 
@@ -135,8 +140,13 @@ analizatorSkladni (char *inpname, store_t *head )
         lexem_t nlex = alex_nextLexem ();
         if (nlex == OPEPAR) {   // nawias otwierający - to zapewne funkcja
           npar++;
-          if( put_on_fun_stack (npar, iname) == -2 )
-              exit(1);       // odłóż na stos funkcji
+          if( npar == 1 ) {
+            if( put_on_fun_stack (npar, iname) == -2 ) {
+                exit(1);       // odłóż na stos funkcji
+            }
+            h++;
+          }
+          
                                                 // stos f. jest niezbędny, aby poprawnie obsłużyć sytuacje typu
                                                 // f1( 5, f2( a ), f3( b ) )
         }
@@ -150,21 +160,26 @@ analizatorSkladni (char *inpname, store_t *head )
       npar++;
       break;
     case CLOPAR:{              // zamykający nawias - to może być koniec prototypu, nagłówka albo wywołania
-        if (top_of_funstack () == npar) {       // sprawdzamy, czy liczba nawiasów bilansuje się z wierzchołkiem stosu funkcji
+        if( h != 0 ) {
+            if (top_of_funstack () == npar) {       // sprawdzamy, czy liczba nawiasów bilansuje się z wierzchołkiem stosu funkcji
+            h--;
                                                 // jeśli tak, to właśnie wczytany nawias jest domknięciem nawiasu otwartego
                                                 // za identyfikatorem znajdującym się na wierzchołku stosu
-          lexem_t nlex = alex_nextLexem ();     // bierzemy nast leksem
-          fname = get_from_fun_stack();
-          if (nlex == OPEBRA){   // nast. leksem to klamra a więc mamy do czynienia z def. funkcji
-            nbra++;
-            store_add_def (fname, alex_getLN (), inpname, head);
-          }
-          else if (nbra == 0) {   // nast. leksem to nie { i jesteśmy poza blokami - to musi być prototyp
-            store_add_proto (fname, alex_getLN (), inpname, head);
-          }
-          else {                  // nast. leksem to nie { i jesteśmy wewnątrz bloku - to zapewne wywołanie
-            store_add_call (fname, alex_getLN (), inpname, head);
-          }
+                lexem_t nlex = alex_nextLexem ();     // bierzemy nast leksem
+                char *fname = get_from_fun_stack();
+                if (nlex == OPEBRA){   // nast. leksem to klamra a więc mamy do czynienia z def. funkcji
+                    store_add_def (fname, alex_getLN (), inpname, head);
+                    free(fname);
+                }
+                else if (nbra == 0) {   // nast. leksem to nie { i jesteśmy poza blokami - to musi być prototyp
+                    store_add_proto (fname, alex_getLN (), inpname, head);
+                    free(fname);
+                }
+                else {                  // nast. leksem to nie { i jesteśmy wewnątrz bloku - to zapewne wywołanie
+                    store_add_call (fname, alex_getLN (), inpname, head);
+                    free(fname);
+                }
+            }
         }
         npar--;
       }
@@ -172,11 +187,8 @@ analizatorSkladni (char *inpname, store_t *head )
     case OPEBRA:
       nbra++;
       break;
-    case CLOBRA: {
-        if (nbra == 1)
-        store_add_def(fname, alex_getLN(), inpname, head);
+    case CLOBRA:
       nbra--;
-     }
       break;
     case ERROR:{
         fprintf (stderr, "\nBUUUUUUUUUUUUUUUUUUUUUU!\n"
@@ -190,7 +202,6 @@ analizatorSkladni (char *inpname, store_t *head )
     }
     lex = alex_nextLexem ();
   }
-      free(fname);
   fclose(in);
-  /*free_stack();*/
+  free_stack();
 }

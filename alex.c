@@ -2,7 +2,7 @@
 
 #include <ctype.h>
 #include <string.h>
-
+#include <stdio.h>
 static int  ln= 0;
 static char ident[256];
 static FILE *ci= NULL;
@@ -50,10 +50,8 @@ lexem_t alex_nextLexem( void ) {
         while( isalnum( c= fgetc(ci) ) )
             ident[i++] = c;
         ident[i] = '\0';
-        if( c == '(' )
-            return isKeyword(ident) ? OTHER : IDENT2;
-        if( c == ')' )
-            return isKeyword(ident) ? OTHER : IDENT3;
+        int len = ftell( ci );
+        fseek( ci, len-1, SEEK_SET );
         return isKeyword(ident) ? OTHER : IDENT;
     } else if( c == '"' ) {
       /* Uwaga: tu trzeba jeszcze poprawic obsluge nowej linii w trakcie napisu
@@ -61,6 +59,8 @@ lexem_t alex_nextLexem( void ) {
       */
         int cp = c;
         while( (c= fgetc(ci)) != EOF && c != '"' && cp == '\\' ) {
+            if( c == '\n' )
+                return ERROR; 
             cp = c;
         }
 
@@ -68,8 +68,41 @@ lexem_t alex_nextLexem( void ) {
 
     } else if( c == '/' ) {
       /* moze byc komentarz */
-    } if( isdigit( c ) || c == '.' ) {
+      c = fgetc( ci );
+      if( c == '/' ) {
+          while( ( c = fgetc( ci ) ) != EOF && c != '\n' )
+              ;
+          if( c ==  EOF )
+              return EOFILE;
+          if( c == '\n' )
+              ln++;
+          return OTHER;
+      }
+      else if( c == '*' ) {
+          //while( 1 ) {
+            while( ( c = fgetc( ci ) ) != EOF && c != '*' ) {
+                if( c == '\n' )
+                    ln++;
+            }
+            if( c == EOF ) {
+                    break;
+                    return EOFILE;
+            }
+            if( c == '*' ) {
+                if( ( c = fgetc( ci ) ) == '/' ) {
+                    break;
+                    return OTHER;
+                }
+            }
+          //}
+      } else {
+        return OTHER;
+      }
+
+      if( isdigit( c ) || c == '.' ) {
       /* liczba */
+         return OTHER;
+      }
     } else {
         return OTHER;
                 }
