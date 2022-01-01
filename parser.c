@@ -9,7 +9,7 @@
 static funstack_t stack = NULL;
 
 int top_of_funstack( void ) {
-    return stack->level;
+    return stack -> level;
 }
 
 int put_on_fun_stack( int par_level, char *funame ) {
@@ -77,6 +77,7 @@ analizatorSkladni (char *inpname, store_t *head )
 {                               // przetwarza plik inpname
   stack = NULL;
   FILE *in = fopen (inpname, "r");
+  char *fname;
 
   int nbra = 0;   // bilans nawiasów klamrowych {}
   int npar = 0;   // bilans nawiasów zwykłych ()
@@ -116,18 +117,16 @@ analizatorSkladni (char *inpname, store_t *head )
                                                 // jeśli tak, to właśnie wczytany nawias jest domknięciem nawiasu otwartego
                                                 // za identyfikatorem znajdującym się na wierzchołku stosu
                 lexem_t nlex = alex_nextLexem ();     // bierzemy nast leksem
-                char *fname = get_from_fun_stack();
+                fname = get_from_fun_stack();
                 if (nlex == OPEBRA){   // nast. leksem to klamra a więc mamy do czynienia z def. funkcji
                     store_add_def (fname, alex_getLN (), inpname, head);
-                    free(fname);
+                    nbra++;
                 }
                 else if (nbra == 0) {   // nast. leksem to nie { i jesteśmy poza blokami - to musi być prototyp
                     store_add_proto (fname, alex_getLN (), inpname, head);
-                    free(fname);
                 }
                 else {                  // nast. leksem to nie { i jesteśmy wewnątrz bloku - to zapewne wywołanie
                     store_add_call (fname, alex_getLN (), inpname, head);
-                    free(fname);
                 }
             }
         
@@ -137,8 +136,11 @@ analizatorSkladni (char *inpname, store_t *head )
     case OPEBRA:
       nbra++;
       break;
-    case CLOBRA:
+    case CLOBRA:{
       nbra--;
+      if (nbra == 0) 
+          store_add_def(fname, alex_getLN(), inpname, head);
+    }
       break;
     case ERROR:{
         fprintf (stderr, "\nBUUUUUUUUUUUUUUUUUUUUUU!\n"
@@ -153,5 +155,6 @@ analizatorSkladni (char *inpname, store_t *head )
     lex = alex_nextLexem ();
   }
   fclose(in);
+  free(fname);
   free_stack();
 }

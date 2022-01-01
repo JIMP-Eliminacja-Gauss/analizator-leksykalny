@@ -15,13 +15,18 @@ void store_cout(store_t *head) {
         printf( "Funkcja: %s\n", fname);
         printf("-- Prototyp funkcji --\n");
         tmp2 = tmp -> inpname_linenum;
-        while (tmp2 != NULL) {
-            printf("\tW pliku: %s\n"
-                   "\tOd linijki %d do linijki %d\n\n", 
-                   tmp2 -> inpname, tmp2 -> line_number[0],
-                   (tmp2 -> line_number[1] != -1 ? 
-                   tmp2 -> line_number[1] : tmp2 -> line_number[0]));
-            tmp2 = tmp2 -> next;
+
+        if (tmp2 -> inpname == NULL) 
+            printf("\t Funkcja nie posiada prototypu\n\n");
+        else {
+            while (tmp2 != NULL) {
+                printf("\tW pliku: %s\n"
+                       "\tOd linijki %d do linijki %d\n\n", 
+                       tmp2 -> inpname, tmp2 -> line_number[0],
+                       (tmp2 -> line_number[1] != -1 ? 
+                       tmp2 -> line_number[1] : tmp2 -> line_number[0]));
+                tmp2 = tmp2 -> next;
+        }
         }
         printf("-- Definicja funkcji --\n");
         tmp2 = tmp -> func_def -> inpname_linenum;
@@ -33,15 +38,19 @@ void store_cout(store_t *head) {
                    tmp2 -> line_number[1] : tmp2 -> line_number[0]));
             tmp2 = tmp2 -> next;
         }
-        tmp2 = tmp -> func_call -> inpname_linenum;
         printf("-- Wywolania funkcji --\n");
-        while (tmp2 != NULL) {
-            printf("\tW pliku: %s\n"
-                   "\tOd linijki %d do linijki %d\n\n", 
-                   tmp2 -> inpname, tmp2 -> line_number[0],
-                   (tmp2 -> line_number[1] != -1 ? 
-                   tmp2 -> line_number[1] : tmp2 -> line_number[0]));
-            tmp2 = tmp2 -> next;
+        tmp2 = tmp -> func_call -> inpname_linenum;
+        if (tmp2 -> inpname == NULL)
+            printf("\tFunkcja nie jest wywolywana ani razu!\n\n");
+        else {
+            while (tmp2 != NULL) {
+                printf("\tW pliku: %s\n"
+                       "\tOd linijki %d do linijki %d\n\n", 
+                       tmp2 -> inpname, tmp2 -> line_number[0],
+                       (tmp2 -> line_number[1] != -1 ? 
+                       tmp2 -> line_number[1] : tmp2 -> line_number[0]));
+                tmp2 = tmp2 -> next;
+            }
         }
         tmp = tmp -> next;
     }
