@@ -75,6 +75,7 @@ void free_stack( void ) {
 void
 analizatorSkladni (char *inpname, store_t *head )
 {                               // przetwarza plik inpname
+  int  h = 0;
   stack = NULL;
   FILE *in = fopen (inpname, "r");
   char *fname;
@@ -97,6 +98,7 @@ analizatorSkladni (char *inpname, store_t *head )
           if( put_on_fun_stack (npar, iname) == -2 ) {
             exit(1);       // odłóż na stos funkcji
           }
+          h++;
           
                                                 // stos f. jest niezbędny, aby poprawnie obsłużyć sytuacje typu
                                                 // f1( 5, f2( a ), f3( b ) )
@@ -111,7 +113,7 @@ analizatorSkladni (char *inpname, store_t *head )
       npar++;
       break;
     case CLOPAR:{              // zamykający nawias - to może być koniec prototypu, nagłówka albo wywołania
-        
+            if( h != 0 ) {
             if (top_of_funstack () == npar) {       // sprawdzamy, czy liczba nawiasów bilansuje się z wierzchołkiem stosu funkcji
             
                                                 // jeśli tak, to właśnie wczytany nawias jest domknięciem nawiasu otwartego
@@ -129,7 +131,8 @@ analizatorSkladni (char *inpname, store_t *head )
                     store_add_call (fname, alex_getLN (), inpname, head);
                 }
             }
-        
+            h--;
+            }
         npar--;
       }
       break;
