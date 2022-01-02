@@ -154,8 +154,8 @@ analizatorSkladni (char *inpname, store_t *head )
       nbra++;
       break;
     case CLOBRA:{
-      if( nbra == 2 )
-          store_add_def(fname, alex_getLN(), inpname, head);
+      /*if( nbra == 2 )
+          store_add_def(fname, alex_getLN(), inpname, head);*/
       nbra--;
       if (nbra == 0) 
           store_add_def(defname, alex_getLN(), inpname, head); /* tutaj dla pierszej ze stosu daje */
