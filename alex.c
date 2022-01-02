@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h>
-static int  ln= 0;
+static int  ln= 1;
 static char ident[256];
 static FILE *ci= NULL;
 
@@ -25,7 +25,7 @@ int isKeyword(char *name) {
 }
 
 void    alex_init4file( FILE *in ) {
-   ln= 0;
+   ln= 1;
    ci= in;
 }
 
@@ -114,7 +114,8 @@ lexem_t alex_nextLexem( void ) {
             return EOFILE;
         if( c == '"' ) {
             while( isspace( c = fgetc( ci ) ) )
-                ;
+                if( c == '\n' )
+                    ln++;
             if( c == EOF )
                 return EOFILE;
             if( c != '"' )
@@ -150,7 +151,7 @@ lexem_t alex_nextLexem( void ) {
             }
             if( c == '*' ) {
                 if( ( c = fgetc( ci ) ) == '/' ) {
-                    break;
+                    /*break;*/
                     return OTHER;
                 }
             }
