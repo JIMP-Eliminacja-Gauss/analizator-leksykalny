@@ -40,6 +40,7 @@ int addRes( char *name ) {
         return -2;
     /*for( int i = 0; i < k; i++ )
         res_names++;*/
+    res_names = r;
     res_names[k-1] = malloc( ( strlen( name ) + 1 ) * sizeof( char ) );
     if( *res_names == NULL )
         return -2;
