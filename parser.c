@@ -131,28 +131,17 @@ analizatorSkladni (char *inpname, store_t *head )
                                                 // jeśli tak, to właśnie wczytany nawias jest domknięciem nawiasu otwartego
                                                 // za identyfikatorem znajdującym się na wierzchołku stosu
                 lexem_t nlex = alex_nextLexem ();     // bierzemy nast leksem
-
-                if ( (fname = get_from_fun_stack()) == NULL ) {
-                    printf("Blad pamieci\n");
-                    exit(-1);
-                }
-
+                fname = get_from_fun_stack();
                 if (nlex == OPEBRA){   // nast. leksem to klamra a więc mamy do czynienia z def. funkcji
                     store_add_def (fname, alex_getLN (), inpname, head);
-                    if ( (defname = strdup(fname)) == NULL ) {
-                        printf("Blad pamieci\n");
-                        exit(-1);
-                    }
-                    free(fname);
+                    defname = fname;
                     nbra++;
                 }
                 else if (nbra == 0) {   // nast. leksem to nie { i jesteśmy poza blokami - to musi być prototyp
                     store_add_proto (fname, alex_getLN (), inpname, head);
-                    free(fname);
                 }
                 else {                  // nast. leksem to nie { i jesteśmy wewnątrz bloku - to zapewne wywołanie
                     store_add_call (fname, alex_getLN (), inpname, head);
-                    free(fname);
                 }
                 h--;
             }
@@ -168,10 +157,8 @@ analizatorSkladni (char *inpname, store_t *head )
       /*if( nbra == 2 )
           store_add_def(fname, alex_getLN(), inpname, head);*/
       nbra--;
-      if (nbra == 0) {
+      if (nbra == 0) 
           store_add_def(defname, alex_getLN(), inpname, head); /* tutaj dla pierszej ze stosu daje */
-          free(defname);
-      } 
     }
       break;
     case ERROR:{
@@ -187,5 +174,6 @@ analizatorSkladni (char *inpname, store_t *head )
     lex = alex_nextLexem ();
   }
   fclose(in);
+  free(fname);
   free_stack();
 }
