@@ -30,13 +30,17 @@ void store_cout(store_t *head) {
         }
         printf("-- Definicja funkcji --\n");
         tmp2 = tmp -> func_def -> inpname_linenum;
-        while (tmp2 != NULL) {
-            printf("\tW pliku: %s\n"
-                   "\tOd linijki %d do linijki %d\n\n", 
-                   tmp2 -> inpname, tmp2 -> line_number[0],
-                   (tmp2 -> line_number[1] != -1 ? 
-                   tmp2 -> line_number[1] : tmp2 -> line_number[0]));
-            tmp2 = tmp2 -> next;
+        if (tmp2 -> inpname == NULL)
+            printf("\tFunkcja nie jest zdefiniowana w zadnym z plikow.\n\n");
+        else {
+            while (tmp2 != NULL) {
+                printf("\tW pliku: %s\n"
+                       "\tOd linijki %d do linijki %d\n\n", 
+                       tmp2 -> inpname, tmp2 -> line_number[0],
+                       (tmp2 -> line_number[1] != -1 ? 
+                       tmp2 -> line_number[1] : tmp2 -> line_number[0]));
+                tmp2 = tmp2 -> next;
+            }
         }
         printf("-- Wywolania funkcji --\n");
         tmp2 = tmp -> func_call -> inpname_linenum;
@@ -53,6 +57,7 @@ void store_cout(store_t *head) {
             }
         }
         tmp = tmp -> next;
+        printf("\n\n");
     }
 
 }
