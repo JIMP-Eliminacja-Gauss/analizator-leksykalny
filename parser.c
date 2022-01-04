@@ -102,6 +102,10 @@ analizatorSkladni (char *inpname, store_t *head )
       /* na koncu na stosie poinna zostac tylko ostatnia funkcja */
       /* strcpy nie zostalo zdjete ze stostu */
     switch (lex) {
+    case MAKRODEF:{
+        npar++;
+    }
+      break;
     case IDENT:{
         char *iname = alex_ident ();   // zapamiętaj identyfikator i patrz co dalej
         lexem_t nlex = alex_nextLexem ();

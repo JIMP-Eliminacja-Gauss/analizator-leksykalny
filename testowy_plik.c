@@ -1,4 +1,4 @@
-
+#define max(A,B) ((A)>(B)?(A):(B))
 int cos () {
     return 1;
 }
