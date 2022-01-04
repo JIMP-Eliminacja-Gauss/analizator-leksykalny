@@ -31,7 +31,6 @@ void    alex_init4file( FILE *in ) {
 
 lexem_t alex_nextLexem( void ) {
   int c;
-  char d = 'd';
   while( (c= fgetc(ci)) != EOF ) {
     if( isspace( c ) && c != '\n' )
         continue;
@@ -54,55 +53,8 @@ lexem_t alex_nextLexem( void ) {
         ident[i] = '\0';
         int len = ftell( ci );
         fseek( ci, len-1, SEEK_SET );
-        /*if( isKeyword( ident ) ) {
-            while( isspace( c ) )
-                c = fgetc( ci );
-            if( c == EOF )
-                return EOFILE;
-            if( isalpha( c ) ) {
-                len = ftell( ci );
-                fseek( ci, len-1, SEEK_SET );
-                return OTHER;
-            }
-            if( c == ';' )
-                return OTHER;
-            if( c == ':' )
-                return OTHER;
-            if( c == '{' ) {
-                len = ftell( ci );
-                fseek( ci, len-1, SEEK_SET );
-                return OTHER;
-            }
-            if( c == '(' ) {
-                int a = 1;
-                while( a != 0 && c != EOF ) {
-                    d = c;
-                    c = fgetc( ci );
-                    if( c == EOF )
-                        return EOFILE;
-                    if( d == '\'' ) {
-                        c = fgetc( ci );
-                        if( c == EOF )
-                            return EOFILE;
-                        c =  fgetc( ci );
-                        if( c == EOF )
-                            return EOFILE;
-                    }
-                    if( c == '\n' )
-                        ln++;
-                    if( c == '(' )
-                        a++;
-                    if( c == ')' )
-                        a--;
-                }
-                return OTHER;
-            }
-        }*/
         return isKeyword(ident) ? OTHER : IDENT;
     } else if( c == '"' ) {
-      /* Uwaga: tu trzeba jeszcze poprawic obsluge nowej linii w trakcie napisu
-         i \\ w napisie 
-      */
         int cp = c;
         while(1) {
         while( (c= fgetc(ci)) != EOF && c != '"' && cp == '\\' ) {
@@ -128,7 +80,6 @@ lexem_t alex_nextLexem( void ) {
         return c==EOF ? EOFILE : OTHER; 
 
     } else if( c == '/' ) {
-      /* moze byc komentarz */
       c = fgetc( ci );
       if( c == '/' ) {
           while( ( c = fgetc( ci ) ) != EOF && c != '\n' )
@@ -151,7 +102,6 @@ lexem_t alex_nextLexem( void ) {
             }
             if( c == '*' ) {
                 if( ( c = fgetc( ci ) ) == '/' ) {
-                    /*break;*/
                     return OTHER;
                 }
             }
@@ -161,7 +111,6 @@ lexem_t alex_nextLexem( void ) {
       }
 
       if( isdigit( c ) || c == '.' ) {
-      /* liczba */
          return OTHER;
       }
     } else {

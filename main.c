@@ -62,11 +62,14 @@ void store_cout(store_t *head) {
 int main(int argc, char **argv) {
     store_t *head =  malloc( sizeof *head );
     store_init( head );
+    int i;
     if( argc < 2 ) {
         printf( "Podano za malo argumentow\n" );
         return 1;
     }
-    analizatorSkladni( argv[1], head );
+    for( i = 1; i < argc; i++ ) {
+        analizatorSkladni( argv[i], head );
+    }
     store_cout( head );
     store_free(head);
     return 0;

@@ -86,6 +86,10 @@ analizatorSkladni (char *inpname, store_t *head )
   int  h = 0;
   stack = NULL;
   FILE *in = fopen (inpname, "r");
+  if( in == NULL ) {
+      printf( "Nie moge otworzyc pliku\n" );
+      exit(-1);
+  }
   char *fname;
   char *defname;
 
@@ -134,7 +138,7 @@ analizatorSkladni (char *inpname, store_t *head )
                 fname = get_from_fun_stack();
                 if (nlex == OPEBRA){   // nast. leksem to klamra a więc mamy do czynienia z def. funkcji
                     store_add_def (fname, alex_getLN (), inpname, head);
-                    defname = fname;
+                    defname = strdup( fname );
                     nbra++;
                 }
                 else if (nbra == 0) {   // nast. leksem to nie { i jesteśmy poza blokami - to musi być prototyp
@@ -157,8 +161,10 @@ analizatorSkladni (char *inpname, store_t *head )
       /*if( nbra == 2 )
           store_add_def(fname, alex_getLN(), inpname, head);*/
       nbra--;
-      if (nbra == 0) 
-          store_add_def(defname, alex_getLN(), inpname, head); /* tutaj dla pierszej ze stosu daje */
+      if (nbra == 0) { 
+          store_add_def(defname, alex_getLN(), inpname, head);
+          free( defname );
+      }
     }
       break;
     case ERROR:{
@@ -174,6 +180,5 @@ analizatorSkladni (char *inpname, store_t *head )
     lex = alex_nextLexem ();
   }
   fclose(in);
-  free(fname);
   free_stack();
 }
