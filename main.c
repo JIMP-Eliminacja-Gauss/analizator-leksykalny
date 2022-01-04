@@ -71,8 +71,10 @@ int main(int argc, char **argv) {
         printf( "Podano za malo argumentow\n" );
         return 1;
     }
-    analizatorSkladni( argv[1], head );
-    analizatorSkladni( argv[2], head );
+
+    for (int i = 1; i < argc; i++) {
+        analizatorSkladni( argv[i], head );
+    }
     store_cout( head );
     store_free(head);
     return 0;
