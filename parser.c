@@ -86,6 +86,11 @@ analizatorSkladni (char *inpname, store_t *head )
   int  h = 0;
   stack = NULL;
   FILE *in = fopen (inpname, "r");
+
+  if (in == NULL) {
+      printf("Nie moge otworzyc pliku...\n");
+      exit(10);
+  }
   char *fname;
   char *defname;
 
