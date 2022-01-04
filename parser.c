@@ -138,7 +138,7 @@ analizatorSkladni (char *inpname, store_t *head )
                 fname = get_from_fun_stack();
                 if (nlex == OPEBRA){   // nast. leksem to klamra a więc mamy do czynienia z def. funkcji
                     store_add_def (fname, alex_getLN (), inpname, head);
-                    defname = /*strdup( fname );*/ fname;
+                    defname = strdup( fname );
                     nbra++;
                 }
                 else if (nbra == 0) {   // nast. leksem to nie { i jesteśmy poza blokami - to musi być prototyp
@@ -147,7 +147,7 @@ analizatorSkladni (char *inpname, store_t *head )
                 else {                  // nast. leksem to nie { i jesteśmy wewnątrz bloku - to zapewne wywołanie
                     store_add_call (fname, alex_getLN (), inpname, head);
                 }
-                /*free( fname );  =========================*/
+                free( fname );
                 h--;
             }
             //h--;
@@ -164,7 +164,7 @@ analizatorSkladni (char *inpname, store_t *head )
       nbra--;
       if (nbra == 0) { 
           store_add_def(defname, alex_getLN(), inpname, head); /* tutaj dla pierszej ze stosu daje */
-          /*free( defname );  =============== */
+          free( defname );
       }
     }
       break;
@@ -181,6 +181,6 @@ analizatorSkladni (char *inpname, store_t *head )
     lex = alex_nextLexem ();
   }
   fclose(in);
-  free(fname);
+  freeRes();
   free_stack();
 }

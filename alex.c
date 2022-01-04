@@ -53,6 +53,8 @@ void freeRes( void ) {
     for( i = 0; i < k; i++ )
         free( res_names[i] );
     free( res_names );
+    res_names = NULL;
+    k = 0;
 }
 int isKeyword(char *name) {
     /*char *reserved_names[] = {
@@ -63,10 +65,16 @@ int isKeyword(char *name) {
          "struct", "switch", "typedef", "union", "unsigned", "void",
          "volatile", "while"
         };*/
-
-    for (int i = 0; i < (int) (sizeof reserved_names / sizeof reserved_names[0]); i++) {
-        if (strcmp(reserved_names[i], name) == 0)
-            return 1;
+    if( k == 0 ) {
+        for (int i = 0; i < (int) (sizeof reserved_names / sizeof reserved_names[0]); i++) {
+            if (strcmp(reserved_names[i], name) == 0)
+                return 1;
+        }
+    } else {
+        for( int i = 0; i < k; i++ )  {
+            if( strcmp( res_names[i],  name ) == 0 )
+                return 1;
+        }
     }
     return 0;
 }
