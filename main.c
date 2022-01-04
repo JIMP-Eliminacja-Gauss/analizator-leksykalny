@@ -67,6 +67,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     analizatorSkladni( argv[1], head );
+    analizatorSkladni( argv[2], head );
     store_cout( head );
     store_free(head);
     return 0;
